@@ -65,11 +65,11 @@ static int read_into_dbuffer(TCHAR *flpath)
 //****************************************************************************************
 #define  MAX_ID_STR_LEN    128
 
-// static char start_tag[] = "id=\"" ;
-static char start_tag[] = ">E08_SQ" ;
-// static char end_tag = '"' ;
-static char end_tag = '<' ;
-static int parse_id_str(char *idtemp, char *instr)
+// static char const start_tag[] = "id=\"" ;
+static char const start_tag[] = ">E08_SQ" ;
+// static char const end_tag = '"' ;
+static char const end_tag = '<' ;
+static int parse_id_str(char *idtemp, char const * instr)
 {
    instr += 1 ;  //  bypass leaders before target string
    int idlen = 0 ;
@@ -114,11 +114,12 @@ static int parse_svg_string(void)
 int read_svg_info(TCHAR *fname)
 {
    sprintf(fpath, _T("%s%s"), base_path, fname) ;
-   dbuf_data_size = read_into_dbuffer(fpath) ;
-   if (dbuf_data_size < 0) {
-      printf("unreadable SVG: %d\n", dbuf_data_size) ;
+   int result = read_into_dbuffer(fpath) ;
+   if (result < 0) {
+      printf("unreadable SVG: %d\n", result) ;
       return 1 ;
    } 
+   dbuf_data_size = (uint) read_into_dbuffer(fpath) ;
    //  first, search for the "fmt" string
    if (strncmp((char *)  dbuffer,    "<svg", 4) != 0) {
       printf("unknown svg format 1") ;
@@ -140,12 +141,12 @@ int read_svg_info(TCHAR *fname)
    }
    tl += 8 ;
    uint height = (uint) atoi(tl);
-   printf("\nfilesize: %6d, dimens: %4u x %5u, %s\n", dbuf_data_size, width, height, fpath);
+   printf("\nfilesize: %6d, dimens: %4u x %5u, %s\n", dbuf_data_size, width, height, fpath); //lint !e705
    
 // filesize: 365046, dimens: 4257 x  7265, D:\SourceCode\Git\svg_hacker\files\E08_SQ01.svg
 // filesize: 354188, dimens: 6423 x  5589, D:\SourceCode\Git\svg_hacker\files\E08_SQ01_S2.svg
 // filesize: 366388, dimens: 7138 x  4782, D:\SourceCode\Git\svg_hacker\files\E08_SQ01_S3.svg
-   int result = parse_svg_string();
+   result = parse_svg_string();
    if (result < 0) {
       return result ;
    }
