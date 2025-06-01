@@ -4,3 +4,4 @@ _lint.tmp
 *.bak
 *.o
 files/
+id_list.txt

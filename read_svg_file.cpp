@@ -27,6 +27,7 @@ static TCHAR fpath[MAX_FILE_LEN+2] ;
 
 #define  DBUFFER_LEN    (1024 * 1024)
 static char dbuffer[DBUFFER_LEN] ;
+static uint dbuf_data_size = 0 ;
 
 //************************************************************************
 //  return file size on success, negative error code on error
@@ -61,13 +62,61 @@ static int read_into_dbuffer(TCHAR *flpath)
    return (int) filesize;
 }  //lint !e818
 
+//****************************************************************************************
+#define  MAX_ID_STR_LEN    128
+
+// static char start_tag[] = "id=\"" ;
+static char start_tag[] = ">E08_SQ" ;
+// static char end_tag = '"' ;
+static char end_tag = '<' ;
+static int parse_id_str(char *idtemp, char *instr)
+{
+   instr += 1 ;  //  bypass leaders before target string
+   int idlen = 0 ;
+   while (*instr != end_tag) {
+      *idtemp++ = *instr++ ;
+      idlen++ ;
+   }
+   *idtemp = 0 ;  //  NULL-term the output string
+   return idlen ;
+}
+
+//****************************************************************************************
+//  now, we can search through the buffer for whatever strings we are interested in.
+//  strcasestr() may be of use here
+//  id="elem_E08_SQ01_ChangeRelationships_Dvupalov_Pin_0"
+//  >E08_SQ01_TakenQuest</text>
+//****************************************************************************************
+static int parse_svg_string(void)
+{
+   static char idtemp[MAX_ID_STR_LEN+1] ;
+   char *hd = &dbuffer[0] ;
+   // printf("address of dbuffer: %08X\n", (uint) &dbuffer[0]);
+   while (LOOP_FOREVER) {
+      char *idptr = strstr(hd, start_tag);
+      if (idptr == NULL) {
+         break ;
+      }
+      // printf("%08X (%6u), %08X: ", (uint) idptr, (uint) (idptr - &dbuffer[0]), (uint) hd);
+      int result = parse_id_str(idtemp, idptr);
+      if (result < 0) {
+         return result ;
+      }
+      // printf("%u: ", (uint) result);
+      printf("%s\n", idtemp);
+      hd = idptr + result + 4 ;
+   }
+   
+   return 0 ;
+}
+
 //************************************************************************
 int read_svg_info(TCHAR *fname)
 {
    sprintf(fpath, _T("%s%s"), base_path, fname) ;
-   int fsize = read_into_dbuffer(fpath) ;
-   if (fsize < 0) {
-      printf("unreadable SVG: %d\n", fsize) ;
+   dbuf_data_size = read_into_dbuffer(fpath) ;
+   if (dbuf_data_size < 0) {
+      printf("unreadable SVG: %d\n", dbuf_data_size) ;
       return 1 ;
    } 
    //  first, search for the "fmt" string
@@ -91,13 +140,15 @@ int read_svg_info(TCHAR *fname)
    }
    tl += 8 ;
    uint height = (uint) atoi(tl);
-   printf("filesize: %6d, dimens: %4u x %5u, %s\n", fsize, width, height, fpath);
+   printf("\nfilesize: %6d, dimens: %4u x %5u, %s\n", dbuf_data_size, width, height, fpath);
    
 // filesize: 365046, dimens: 4257 x  7265, D:\SourceCode\Git\svg_hacker\files\E08_SQ01.svg
 // filesize: 354188, dimens: 6423 x  5589, D:\SourceCode\Git\svg_hacker\files\E08_SQ01_S2.svg
 // filesize: 366388, dimens: 7138 x  4782, D:\SourceCode\Git\svg_hacker\files\E08_SQ01_S3.svg
-   //  now, we can search through the buffer for whatever strings we are interested in.
-   //  strcasestr() may be of use here
+   int result = parse_svg_string();
+   if (result < 0) {
+      return result ;
+   }
    
    return 0;
 }
