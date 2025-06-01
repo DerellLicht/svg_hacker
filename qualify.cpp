@@ -17,36 +17,36 @@
 //  NOTE: this function requires -lshlwapi
 //*****************************************************************
 
+//lint -e18  Symbol redeclared (nominal) 
+
+#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>             //  strlen()
 #include <direct.h>             //  _getdrive()
 #include <sys/stat.h>
 //  lint says I don't need this header, and in fact for MSVC6.0
 //  I *don't* need it, but for gcc I do...
 #include <ctype.h>              //  tolower()
-#include <windows.h>
-//lint -e87  c:\mingw\include\shlwapi.h  expression too complicated for #ifdef or #ifndef
 
 #include <shlwapi.h>
 #include <limits.h>
 
+#include "common.h"
 #include "qualify.h"
 
-#define  LOOP_FOREVER   true
-
-static char path[PATH_MAX];
+static char path[MAX_FILE_LEN+1];
 
 //lint -esym(438, drive)  Last value assigned to variable 'drive' not used
-
 
 /******************************************************************/
 unsigned qualify (char *argptr)
 {
    char *pathptr = &path[0];
-   char *strptr, *srchptr, tempchar;
+   char *strptr, *srchptr ;
+   // char tempchar;
    DWORD plen;
-   int drive, result ;
+   int drive ;
+   int result ;
    // int done ;
    // HANDLE handle;
    struct stat my_stat ;
@@ -68,15 +68,15 @@ unsigned qualify (char *argptr)
          goto exit_point;
       }
    }
-   else if (*(argptr + 1) == ':') { /*  a drive spec was provided  */
-      // printf("args=colon\n") ;      
-      tempchar = *argptr;
-      drive = tolower (tempchar) - '`';   //  char - ('a' - 1)
-   }
-   else {                       /*  a path with no drive spec was provided  */
-      // printf("args=no drive\n") ;      
-      drive = _getdrive ();     //  1 = A:
-   }
+   // else if (*(argptr + 1) == ':') { /*  a drive spec was provided  */
+   //    // printf("args=colon\n") ;      
+   //    tempchar = *argptr;
+   //    drive = tolower (tempchar) - '`';   //  char - ('a' - 1)
+   // }
+   // else {                       /*  a path with no drive spec was provided  */
+   //    // printf("args=no drive\n") ;      
+   //    drive = _getdrive ();     //  1 = A:
+   // }
 
    //******************************************************
    //  strings in quotes will also foil the DOS routines;
@@ -94,7 +94,7 @@ unsigned qualify (char *argptr)
    //******************************************************
    //  get expanded path (this doesn't support UNC)
    //******************************************************
-   plen = GetFullPathName (argptr, PATH_MAX, (LPTSTR) pathptr, NULL);
+   plen = GetFullPathName (argptr, MAX_FILE_LEN, (LPTSTR) pathptr, NULL);
    if (plen == 0)
       return QUAL_INV_DRIVE;
 

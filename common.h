@@ -19,9 +19,7 @@ typedef  unsigned int         u32 ;
 //  this definition was excluded by WINNT.H
 #define FILE_ATTRIBUTE_VOLID  0x00000008
 
-#ifndef PATH_MAX
-#define  PATH_MAX       260
-#endif
+#define  MAX_FILE_LEN   1024
 
 #define  LOOP_FOREVER   true
 
@@ -42,7 +40,7 @@ union u64toul {
 
 //lint -esym(552, base_len)   Symbol not accessed
 //lint -esym(759, base_len)   header declaration for symbol could be moved from header to module
-extern char base_path[PATH_MAX] ;
+extern char base_path[MAX_FILE_LEN+1] ;
 extern unsigned base_len ;  //  length of base_path
 
 //  debug functions

@@ -8,7 +8,6 @@
 
 #include <windows.h>
 #include <stdio.h>
-#include <stdlib.h>  //  PATH_MAX
 
 #include "common.h"
 
@@ -18,7 +17,7 @@
 //lint -esym(768, ul2uc_u::uc, ul2uc_u::ul, ul2uc_u::us)
 
 //  name of drive+path without filenames
-char base_path[PATH_MAX] ;
+char base_path[MAX_FILE_LEN+1] ;
 unsigned base_len ;  //  length of base_path
 
 //**********************************************************************

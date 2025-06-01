@@ -25,11 +25,12 @@ CFLAGS += -DUSE_64BIT
 CxxFLAGS += -DUSE_64BIT
 endif
 
+#  needed by qualify.cpp
 LIBS=-lshlwapi
 
 BIN = svg_hacker
 
-CPPSRC=svg_hacker.cpp common.cpp qualify.cpp
+CPPSRC=svg_hacker.cpp read_svg_file.cpp common.cpp qualify.cpp
 
 OBJS = $(CPPSRC:.cpp=.o)
 
@@ -75,5 +76,6 @@ $(BIN).exe: $(OBJS)
 # DO NOT DELETE
 
 svg_hacker.o: common.h svg_hacker.h qualify.h
+read_svg_file.o: common.h svg_hacker.h
 common.o: common.h
 qualify.o: qualify.h

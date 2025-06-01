@@ -12,3 +12,6 @@ struct ffdata {
    struct ffdata  *next ;
 } ;
 
+//  read_svg_file.cpp
+int read_svg_info(TCHAR *fname);
+

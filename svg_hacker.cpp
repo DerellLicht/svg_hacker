@@ -10,7 +10,6 @@
 
 #include <windows.h>
 #include <stdio.h>
-#include <stdlib.h>  //  PATH_MAX
 
 #include "common.h"
 #include "svg_hacker.h"
@@ -59,7 +58,7 @@ int read_files(char *filespec)
       if (!show_all) {
          if ((fdata.dwFileAttributes & 
             (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM)) != 0) {
-            fn_okay = 0 ;
+            // fn_okay = 0 ;
             goto search_next_file;
          }
       }
@@ -98,16 +97,13 @@ int read_files(char *filespec)
          //****************************************************
          //  allocate and initialize the structure
          //****************************************************
+         //  program is 27KB with malloc(), 139KB with new
          // ftemp = new ffdata;
          ftemp = (struct ffdata *) malloc(sizeof(ffdata)) ;
          if (ftemp == NULL) {
             return -errno;
          }
-         memset((char *) ftemp, 0, sizeof(ffdata));
-
-         //  convert filename to lower case if appropriate
-         // if (!n.ucase)
-         //    strlwr(fblk.name) ;
+         ZeroMemory((char *) ftemp, sizeof(ffdata));
 
          ftemp->attrib = (uchar) fdata.dwFileAttributes;
 
@@ -154,15 +150,15 @@ search_next_file:
 }
 
 //**********************************************************************************
-char file_spec[PATH_MAX+1] = "" ;
+char file_spec[MAX_FILE_LEN+1] = "" ;
 
 int main(int argc, char **argv)
 {
    int idx, result ;
    for (idx=1; idx<argc; idx++) {
       char *p = argv[idx] ;
-      strncpy(file_spec, p, PATH_MAX);
-      file_spec[PATH_MAX] = 0 ;
+      strncpy(file_spec, p, MAX_FILE_LEN);
+      file_spec[MAX_FILE_LEN] = 0 ;
    }
 
    if (file_spec[0] == 0) {
@@ -199,9 +195,9 @@ int main(int argc, char **argv)
    if (filecount > 0) {
       puts("");
       for (ffdata *ftemp = ftop; ftemp != NULL; ftemp = ftemp->next) {
-         printf("%s\n", ftemp->filename);
+         // printf("%s\n", ftemp->filename);
+         read_svg_info(ftemp->filename);  //lint !e534
       }
-
    }
    return 0;
 }
