@@ -33,9 +33,10 @@
 
 #include "qualify.h"
 
+#define  MAX_PATH_LEN   1024
 #define  LOOP_FOREVER   true
 
-static TCHAR path[PATH_MAX];
+static TCHAR path[MAX_PATH_LEN];
 
 /******************************************************************/
 unsigned qualify (TCHAR *argptr)
@@ -93,7 +94,7 @@ unsigned qualify (TCHAR *argptr)
    //******************************************************
    //  get expanded path (this doesn't support UNC)
    //******************************************************
-   plen = GetFullPathName (argptr, PATH_MAX, (LPTSTR) pathptr, NULL);
+   plen = GetFullPathName (argptr, MAX_PATH_LEN, (LPTSTR) pathptr, NULL);
    if (plen == 0)
       return QUAL_INV_DRIVE;
 
